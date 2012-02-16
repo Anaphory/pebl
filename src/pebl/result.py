@@ -26,7 +26,7 @@ from pebl import posterior, config
 from pebl.util import flatten, rescale_logvalues
 from pebl.network import Network
 
-class _ScoredNetwork(Network):
+class _ScoredNetwork(object):
     """A class  for representing scored networks.
     
     Supports comparision of networks based on score and equality based on first
