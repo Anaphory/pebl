@@ -26,30 +26,6 @@ from pebl import posterior, config
 from pebl.util import flatten, rescale_logvalues
 from pebl.network import Network
 
-class _ScoredNetwork(object):
-    """A class  for representing scored networks.
-    
-    Supports comparision of networks based on score and equality based on first
-    checking score equality (MUCH faster than checking network edges), then edges.  
- 
-    Note: This is a private class used by LearnerResult. It's interface is
-    not guaranteed to ramain stable.
-
-    """
-
-    def __init__(self, edgelist, score):
-        self.edges = edgelist
-        self.score = score
-
-    def __cmp__(self, other):
-        return cmp(self.score, other.score)
-
-    def __eq__(self, other):
-        return self.score == other.score and self.edges == other.edges
-
-    def __hash__(self):
-        return hash(self.edges)
-
 
 class LearnerRunStats:
     def __init__(self, start):
@@ -117,7 +93,6 @@ class LearnerResult:
 
         if self.size == 0 or len(nets) < self.size:
             if nethash not in nethashes:
-                #snet = _ScoredNetwork(copy(net.edges), score)
                 snet = Network(copy(self.nodes), copy(net.edges), score=score)
                 insort(nets, snet)
                 nethashes[nethash] = 1
@@ -125,7 +100,6 @@ class LearnerResult:
             nethashes.pop(hash(nets[0].edges))
             nets.remove(nets[0])
 
-            #snet = _ScoredNetwork(copy(net.edges), score)
             snet = Network(copy(self.nodes), copy(net.edges), score=score)
             insort(nets, snet)
             nethashes[nethash] = 1

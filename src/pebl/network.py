@@ -228,6 +228,15 @@ class Network(object):
                 edges = [tuple([int(n) for n in e.split(',')]) for e in edges]
                 self.edges.add_many(edges)
 
+    def __hash__(self):
+        return hash(self.edges)
+
+    def __cmp__(self, other):
+        return cmp(self.score, other.score)
+
+    def __eq__(self, other):
+        return self.score == other.score and self.edges == other.edges
+        
     def is_acyclic(self, roots=None):
         """Uses a depth-first search (dfs) to detect cycles."""
 
