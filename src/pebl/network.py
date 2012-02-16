@@ -193,7 +193,7 @@ class Network(object):
     #
     # Public methods
     #
-    def __init__(self, nodes, edges=None):
+    def __init__(self, nodes, edges=None, score=None):
         """Creates a Network.
 
         nodes is a list of pebl.data.Variable instances.
@@ -208,6 +208,10 @@ class Network(object):
         
         self.nodes = nodes
         self.nodeids = range(len(nodes))
+
+        #this store the network score.
+        #If None, network is not scored, otherwise this is a float
+        self.score = score
 
         # add edges
         if isinstance(edges, EdgeSet):

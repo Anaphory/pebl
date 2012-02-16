@@ -117,14 +117,16 @@ class LearnerResult:
 
         if self.size == 0 or len(nets) < self.size:
             if nethash not in nethashes:
-                snet = _ScoredNetwork(copy(net.edges), score)
+                #snet = _ScoredNetwork(copy(net.edges), score)
+                snet = Network(copy(self.nodes), copy(net.edges), score=score)
                 insort(nets, snet)
                 nethashes[nethash] = 1
         elif score > nets[0].score and nethash not in nethashes:
             nethashes.pop(hash(nets[0].edges))
             nets.remove(nets[0])
 
-            snet = _ScoredNetwork(copy(net.edges), score)
+            #snet = _ScoredNetwork(copy(net.edges), score)
+            snet = Network(copy(self.nodes), copy(net.edges), score=score)
             insort(nets, snet)
             nethashes[nethash] = 1
 
