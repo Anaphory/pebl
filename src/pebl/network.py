@@ -14,8 +14,13 @@ import numpy as N
 from pebl.util import *
 
 try:
+    import networkx as nx
+except ImportError:
+    _networkx = False
+
+try:
     from pebl import _network
-except:
+except ImportError:
     _network = None
 
 class EdgeSet(object):
@@ -236,7 +241,7 @@ class Network(object):
 
     def __eq__(self, other):
         return self.score == other.score and self.edges == other.edges
-        
+
     def is_acyclic(self, roots=None):
         """Uses a depth-first search (dfs) to detect cycles."""
 
@@ -365,6 +370,22 @@ class Network(object):
         g = self.as_pydot()
         g = decorator(g)
         g.write_png(filename, prog=prog)
+
+    def as_networkx(self):
+        """Returns a NetworkX DiGraph with properly labeled nodes and edges"""
+
+        if not _networkx:
+            print "Cannot create NetworkX DiGraph because networkx is missing"""
+            return None
+        
+        nodes = [n.name for n in self.nodes]
+        edges = self.edges.as_tuple()
+
+        g = nx.DiGraph()
+        g.add_nodes_from(nodes)
+        g.add_edges_from([(i,e) for i,j in enumerate(edges) for e in j])
+
+        return g
 
 
 #        

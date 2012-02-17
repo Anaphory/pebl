@@ -19,7 +19,7 @@ try:
     import simplejson
     from pkg_resources import resource_filename
     _can_create_html = True
-except:
+except ImportError:
     _can_create_html = False
     
 from pebl import posterior, config
