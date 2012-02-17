@@ -15,6 +15,7 @@ from pebl.util import *
 
 try:
     import networkx as nx
+    _networkx = True
 except ImportError:
     _networkx = False
 
