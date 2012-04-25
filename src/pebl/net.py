@@ -24,173 +24,6 @@ try:
 except ImportError:
     _network = None
 
-class EdgeSet(object):
-    """
-    Maintains a set of edges.
-
-    Performance characteristics:
-        - Edge insertion: O(1)
-        - Edge retrieval: O(n)
-    
-    Uses adjacency lists but exposes an adjacency matrix interface via the
-    adjacency_matrix property.
-
-    """
-
-    def __init__(self, num_nodes=0):
-        self._outgoing = [[] for i in xrange(num_nodes)]
-        self._incoming = [[] for i in xrange(num_nodes)] 
-
-    def clear(self):
-        """Clear the list of edges."""
-        self.__init__(len(self._outgoing)) 
-
-    def add(self, edge):
-        """Add an edge to the list."""
-        self.add_many([edge])
-        
-    def add_many(self, edges):
-        """Add multiple edges."""
-
-        for src,dest in edges:
-            if dest not in self._outgoing[src]: 
-                insort(self._outgoing[src], dest)
-                insort(self._incoming[dest], src)
-            
-    def remove(self, edge):
-        """Remove edges from edgelist.
-        
-        If an edge to be removed does not exist, fail silently (no exceptions).
-
-        """
-        self.remove_many([edge])
-
-    def remove_many(self, edges):
-        """Remove multiple edges."""
-
-        for src,dest in edges:
-            try: 
-                self._incoming[dest].remove(src)
-                self._outgoing[src].remove(dest)
-            except KeyError, ValueError: 
-                pass
-
-    def incoming(self, node):
-        """Return list of nodes (as node indices) that have an edge to given node.
-        
-        The returned list is sorted.
-        Method is also aliased as parents().
-        
-        """
-        return self._incoming[node]
-
-    def outgoing(self, node):
-        """Return list of nodes (as node indices) that have an edge from given node.
-        
-        The returned list is sorted.
-        Method is also aliased as children().
-
-        """
-        return self._outgoing[node]
-
-    parents = incoming
-    children = outgoing
-
-    def __iter__(self):
-        """Iterate through the edges in this edgelist.
-
-        Sample usage:
-        for edge in edgelist: 
-            print edge
-
-        """
-        
-        for src, dests in enumerate(self._outgoing):
-            for dest in dests:
-                yield (src, dest)
-
-    def __eq__(self, other):
-        for out1,out2 in zip(self._outgoing, other._outgoing):
-            if out1 != out2:
-                return False
-        return True
-
-    def __hash__(self):
-        return hash(tuple(tuple(s) for s in self._outgoing))
-        
-    def __copy__(self):
-        other = EdgeSet.__new__(EdgeSet)
-        other._outgoing = [[i for i in lst] for lst in self._outgoing]
-        other._incoming = [[i for i in lst] for lst in self._incoming]
-        return other
-
-    def as_tuple(self):
-        return tuple(tuple(s) for s in self._outgoing)
-
-    @extended_property
-    def adjacency_matrix():
-        """Set or get edges as an adjacency matrix.
-
-        The adjacency matrix is a boolean numpy.ndarray instance.
-
-        """
-
-        def fget(self):
-            size = len(self._outgoing)
-            adjmat = N.zeros((size, size), dtype=bool)
-            selfedges = list(self)
-            if selfedges:
-                adjmat[unzip(selfedges)] = True
-            return adjmat
-
-        def fset(self, adjmat):
-            self.clear()
-            for edge in zip(*N.nonzero(adjmat)):
-                self.add(edge)
-
-        return locals()
-
-    @extended_property
-    def adjacency_lists():
-        """Set or get edges as two adjacency lists.
-
-        Property returns/accepts two adjacency lists for outgoing and incoming
-        edges respectively. Each adjacency list if a list of sets.
-
-        """
-
-        def fget(self):
-            return self._outgoing, self._incoming
-
-        def fset(self, adjlists):
-            if len(adjlists) is not 2:
-                raise Exception("Specify both outgoing and incoming lists.")
-           
-            # adjlists could be any iterable. convert to list of lists
-            _outgoing, _incoming = adjlists
-            self._outgoing = [list(lst) for lst in _outgoing]
-            self._incoming = [list(lst) for lst in _incoming]
-
-        return locals()
-
-    def __contains__(self, edge):
-        """Check whether an edge exists in the edgelist.
-
-        Sample usage:
-        if (4,5) in edges: 
-            print "edge exists!"
-
-        """
-        src, dest = edge
-
-        try:
-            return dest in self._outgoing[src]
-        except IndexError:
-            return False
-
-    def __len__(self):
-        return sum(len(out) for out in self._outgoing)
-
 
 class Network(nx.DiGraph):
     """A network is a set of nodes and directed edges between nodes"""
@@ -243,15 +76,11 @@ class Network(nx.DiGraph):
     def __eq__(self, other):
         return self.score == other.score and hash(self.edges) == hash(other.edges)
 
+    
     def is_acyclic(self, roots=None):
         """Uses a depth-first search (dfs) to detect cycles."""
 
         return nx.is_directed_acyclic_graph(self)
-
-    def is_acyclic_python(self, roots=None):
-        """Uses a depth-first search (dfs) to detect cycles."""
-
-        return self.is_acyclic(self)
 
     def copy(self):
         """Returns a copy of this network."""
@@ -359,6 +188,156 @@ class Network(nx.DiGraph):
 
         return g
 
+
+class EdgeSet(object):
+    """
+    Maintains a set of edges.
+
+    Performance characteristics:
+        - Edge insertion: O(1)
+        - Edge retrieval: O(n)
+    
+    Uses adjacency lists but exposes an adjacency matrix interface via the
+    adjacency_matrix property.
+
+    """
+
+    def __init__(self, num_nodes=0):
+        self.edges = []
+
+    def clear(self):
+        """Clear the list of edges."""
+        self.edges = [] 
+
+    def add(self, edge):
+        """Add an edge to the list."""
+        u, v = edge
+        self.add_edge(u, v)
+        
+    def add_many(self, edges):
+        """Add multiple edges."""
+        self.add_edges_from(edges)
+         
+    def remove(self, edge):
+        """Remove edges from edgelist.
+        
+        If an edge to be removed does not exist, fail silently (no exceptions).
+
+        """
+        u, v = edge
+        self.remove_edge(u, v)
+
+    def remove_many(self, edges):
+        """Remove multiple edges."""
+        self.remove_edges_from(edges)
+
+    def incoming(self, node):
+        """Return list of nodes (as node indices) that have an edge to given node.
+        
+        The returned list is sorted.
+        Method is also aliased as parents().
+        
+        """
+        return self.in_edges(node)
+
+    def outgoing(self, node):
+        """Return list of nodes (as node indices) that have an edge from given node.
+        
+        The returned list is sorted.
+        Method is also aliased as children().
+
+        """
+        return self.out_edges(node)
+
+    parents = incoming
+    children = outgoing
+
+    def __iter__(self):
+        """Iterate through the edges in this edgelist.
+
+        Sample usage:
+        for edge in edgelist: 
+            print edge
+
+        """
+        return self.edges_iter()
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __hash__(self):
+        return hash(self.edges)
+        
+    def __copy__(self):
+        other = EdgeSet(self.edges[:])
+        return other
+
+    def as_tuple(self):
+        return tuple(tuple(s) for s in self._outgoing)
+
+    @extended_property
+    def adjacency_matrix():
+        """Set or get edges as an adjacency matrix.
+
+        The adjacency matrix is a boolean numpy.ndarray instance.
+
+        """
+
+        def fget(self):
+            size = len(self._outgoing)
+            adjmat = N.zeros((size, size), dtype=bool)
+            selfedges = list(self)
+            if selfedges:
+                adjmat[unzip(selfedges)] = True
+            return adjmat
+
+        def fset(self, adjmat):
+            self.clear()
+            for edge in zip(*N.nonzero(adjmat)):
+                self.add(edge)
+
+        return locals()
+
+    @extended_property
+    def adjacency_lists():
+        """Set or get edges as two adjacency lists.
+
+        Property returns/accepts two adjacency lists for outgoing and incoming
+        edges respectively. Each adjacency list if a list of sets.
+
+        """
+
+        def fget(self):
+            return self._outgoing, self._incoming
+
+        def fset(self, adjlists):
+            if len(adjlists) is not 2:
+                raise Exception("Specify both outgoing and incoming lists.")
+           
+            # adjlists could be any iterable. convert to list of lists
+            _outgoing, _incoming = adjlists
+            self._outgoing = [list(lst) for lst in _outgoing]
+            self._incoming = [list(lst) for lst in _incoming]
+
+        return locals()
+
+    def __contains__(self, edge):
+        """Check whether an edge exists in the edgelist.
+
+        Sample usage:
+        if (4,5) in edges: 
+            print "edge exists!"
+
+        """
+        src, dest = edge
+
+        try:
+            return dest in self._outgoing[src]
+        except IndexError:
+            return False
+
+    def __len__(self):
+        return sum(len(out) for out in self._outgoing)
 
 #        
 # Factory functions
