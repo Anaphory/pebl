@@ -130,7 +130,7 @@ class NetworkEvaluator(object):
     def _score_network_core(self):
         # in this implementation, we score all nodes (even if that means
         # redundant computation)
-        parents = self.network.edges.parents
+        parents = self.network.predecessors
         self.score = self._globalscore(
             self._localscore(n, parents(n)) for n in self.datavars
         )
@@ -153,20 +153,20 @@ class NetworkEvaluator(object):
     def alter_network(self, add=[], remove=[]):
         """Alter network by adding and removing sets of edges."""
 
-        self.network.edges.add_many(add)
-        self.network.edges.remove_many(remove)
+        self.network.add_many(add)
+        self.network.remove_many(remove)
         return self.score_network()
     
     def randomize_network(self): 
         """Randomize the network edges."""
 
-        self.network = network.random_network(self.network.nodes)
+        self.network = network.random_network(self.network.nodes())
         return self.score_network()
 
     def clear_network(self):     
         """Clear all edges from the network."""
 
-        self.network.edges.clear()
+        self.network.clear()
         return self.score_network()
 
 
@@ -222,8 +222,8 @@ class SmartNetworkEvaluator(NetworkEvaluator):
         #for n,score in changedscores:
             #self.localscores[n] = score
 
-        self.network.edges.add_many(removed)
-        self.network.edges.remove_many(added)
+        self.network.add_many(removed)
+        self.network.remove_many(added)
         self.saved_state = None
         self.dirtynodes = set()
 
@@ -233,7 +233,7 @@ class SmartNetworkEvaluator(NetworkEvaluator):
             return self.score
 
         # update localscore for dirtynodes, then re-calculate globalscore
-        parents = self.network.edges.parents
+        parents = self.network.predecessors
         for node in self.dirtynodes:
             self.localscores[node] = self._localscore(node, parents(node))
         
@@ -273,14 +273,14 @@ class SmartNetworkEvaluator(NetworkEvaluator):
         # NOTE: remove existing edges *before* adding new ones. 
         #   if edge e is in `add`, `remove` and `self.network`, 
         #   it should exist in the new network. (the add and remove cancel out.
-        self.network.edges.remove_many(remove)
-        self.network.edges.add_many(add)    
+        self.network.remove_many(remove)
+        self.network.add_many(add)    
 
         # check whether changes lead to valid DAG (raise error if they don't)
         affected_nodes = set(unzip(add, 1))
         if affected_nodes and not self.network.is_acyclic(affected_nodes):
-            self.network.edges.remove_many(add)
-            self.network.edges.add_many(remove)
+            self.network.remove_many(add)
+            self.network.add_many(remove)
             raise CyclicNetworkError()
         
         
@@ -297,13 +297,13 @@ class SmartNetworkEvaluator(NetworkEvaluator):
     def randomize_network(self):
         """Randomize the network edges."""
 
-        newnet = network.random_network(self.network.nodes)
+        newnet = network.random_network(self.network.nodes())
         return self.score_network(newnet)
 
     def clear_network(self):
         """Clear all edges from the network."""
 
-        return self.alter_network(remove=list(self.network.edges))
+        return self.alter_network(remove=self.network.edges())
 
     def restore_network(self):
         """Undo the last change to the network (and score).
@@ -396,7 +396,7 @@ class MissingDataNetworkEvaluator(SmartNetworkEvaluator):
         config.setparams(self, options)
         
     def _init_state(self):
-        parents = self.network.edges.parents
+        parents = self.network.predecessors
 
         self.cpds = [self._cpd(n, parents(n)) for n in self.datavars]
         self.localscores = N.array([cpd.loglikelihood() for cpd in self.cpds], dtype=float)
@@ -424,12 +424,12 @@ class MissingDataNetworkEvaluator(SmartNetworkEvaluator):
         self.data.observations[row,col] = value
 
         # update data_dirtynodes
-        affected_nodes = set(self.network.edges.children(col) + [col])
+        affected_nodes = set(self.network.successors(col) + [col])
         self.data_dirtynodes.update(affected_nodes)
 
         # update cpds
         for node in affected_nodes:
-            datacols = [node] + self.network.edges.parents(node)
+            datacols = [node] + self.network.predecessors(node)
             if not self.data.interventions[row,node]:
                 self.cpds[node].replace_data(
                         oldrow[datacols],
