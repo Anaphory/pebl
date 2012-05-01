@@ -19,53 +19,31 @@ try:
 except ImportError:
     _networkx = False
 
-try:
-    from pebl import _network
-except ImportError:
-    _network = None
-
-
 class Network(nx.DiGraph):
     """A network is a set of nodes and directed edges between nodes"""
     
-
     #
     # Public methods
     #
-    def __init__(self, nodes, edges=None, score=None):
+    def __init__(self, nodes, edges=tuple(), score=None):
         """Creates a Network.
 
         nodes is a list of pebl.data.Variable instances.
         edges can be:
 
-            * an EdgeSet instance
             * a list of edge tuples
             * an adjacency matrix (as boolean numpy.ndarray instance)
             * string representation (see Network.as_string() for format)
 
         """
-        
         self.add_nodes_from(nodes)
         self.nodeids = range(len(nodes))
-
+        
+        self.add_edges_from(edges)
+            
         #this store the network score.
         #If None, network is not scored, otherwise this is a float
         self.score = score
-
-        # add edges
-        if isinstance(edges, EdgeSet):
-            self.add_edges_from(edges)
-        elif isinstance(edges, N.ndarray):
-            self.edges = EdgeSet(len(edges))
-            self.edges.adjacency_matrix = edges    
-        else:
-            self.edges = EdgeSet(len(self.nodes))
-            if isinstance(edges, list):
-                self.edges.add_many(edges)
-            elif isinstance(edges, str) and edges:
-                edges = edges.split(';')
-                edges = [tuple([int(n) for n in e.split(',')]) for e in edges]
-                self.edges.add_many(edges)
 
     def __hash__(self):
         return hash(self.edges)
@@ -86,7 +64,7 @@ class Network(nx.DiGraph):
         """Returns a copy of this network."""
         return self.copy()    
        
-    def layout(self, width=400, height=400, dotpath="dot"): 
+    def layout(self, prog="dot", args=''): 
         """Determines network layout using Graphviz's dot algorithm.
 
         width and height are in pixels.
@@ -96,22 +74,10 @@ class Network(nx.DiGraph):
 
         """
 
-        tempdir = tempfile.mkdtemp(prefix="pebl")
-        dot1 = os.path.join(tempdir, "1.dot")
-        dot2 = os.path.join(tempdir, "2.dot")
-        self.as_dotfile(dot1)
-
-        try:
-            os.system("%s -Tdot -Gratio=fill -Gdpi=60 -Gfill=10,10 %s > %s" % (dotpath, dot1, dot2))
-        except:
-            raise Exception("Cannot find the dot program at %s." % dotpath)
-
-        dotgraph = pydot.graph_from_dot_file(dot2)
-        nodes = (n for n in dotgraph.get_node_list() if n.get_pos())
-        self.node_positions = [[int(float(i)) for i in n.get_pos()[1:-1].split(',')] for n in nodes] 
-
+        self.node_positions = nx.graphviz_layout(self, prog=prog, args=args)
 
     def as_string(self):
+        #DEPRECATE
         """Returns the sparse string representation of network.
 
         If network has edges (2,3) and (1,2), the sparse string representation
@@ -125,26 +91,7 @@ class Network(nx.DiGraph):
     def as_dotstring(self):
         """Returns network as a dot-formatted string"""
 
-        def node(n, position):
-            s = "\t\"%s\"" % n.name
-            if position:
-                x,y = position
-                s += " [pos=\"%d,%d\"]" % (x,y)
-            return s + ";"
-
-
-        nodes = self.nodes
-        positions = self.node_positions if hasattr(self, 'node_positions') \
-                                        else [None for n in nodes]
-
-        return "\n".join(
-            ["digraph G {"] + 
-            [node(n, pos) for n,pos in zip(nodes, positions)] + 
-            ["\t\"%s\" -> \"%s\";" % (nodes[src].name, nodes[dest].name) 
-                for src,dest in self.edges] +
-            ["}"]
-        )
- 
+        return self.as_pydot().to_string()
 
     def as_dotfile(self, filename):
         """Saves network as a dot file."""
@@ -154,7 +101,7 @@ class Network(nx.DiGraph):
     def as_pydot(self):
         """Returns a pydot instance for the network."""
 
-        return pydot.graph_from_dot_data(self.as_dotstring())
+        return nx.to_pydot(self)
 
 
     def as_image(self, filename, decorator=lambda x: x, prog='dot'):
@@ -171,22 +118,6 @@ class Network(nx.DiGraph):
         g = self.as_pydot()
         g = decorator(g)
         g.write_png(filename, prog=prog)
-
-    def as_networkx(self):
-        """Returns a NetworkX DiGraph with properly labeled nodes and edges"""
-
-        if not _networkx:
-            print "Cannot create NetworkX DiGraph because networkx is missing"""
-            return None
-        
-        nodes = [n.name for n in self.nodes]
-        edges = self.edges.as_tuple()
-
-        g = nx.DiGraph()
-        g.add_nodes_from(nodes)
-        g.add_edges_from([(i,e) for i,j in enumerate(edges) for e in j])
-
-        return g
 
 
 class EdgeSet(object):
@@ -344,7 +275,7 @@ class EdgeSet(object):
 #
 def fromdata(data_):
     """Creates a network from the variables in the dataset."""
-    return Network(data_.variables)
+    return Network(data_.variables)   
 
 def random_network(nodes, required_edges=[], prohibited_edges=[]):
     """Creates a random network with the given set of nodes.
