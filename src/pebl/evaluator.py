@@ -157,10 +157,12 @@ class NetworkEvaluator(object):
         self.network.edges.remove_many(remove)
         return self.score_network()
     
-    def randomize_network(self): 
+    def randomize_network(self, blacklist=tuple(), whitelist=tuple()): 
         """Randomize the network edges."""
 
-        self.network = network.random_network(self.network.nodes)
+        self.network = network.random_network(self.network.nodes,
+                                              required_edges = whitelist,
+                                              prohibited_edges = blacklist)
         return self.score_network()
 
     def clear_network(self):     
@@ -294,10 +296,12 @@ class SmartNetworkEvaluator(NetworkEvaluator):
 
         return self.score
        
-    def randomize_network(self):
+    def randomize_network(self, blacklist=tuple(), whitelist=tuple()):
         """Randomize the network edges."""
 
-        newnet = network.random_network(self.network.nodes)
+        newnet = network.random_network(self.network.nodes,
+                                        required_edges = whitelist,
+                                        prohibited_edges = blacklist)
         return self.score_network(newnet)
 
     def clear_network(self):

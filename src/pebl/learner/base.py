@@ -47,9 +47,9 @@ class Learner(Task):
         self.remove = 0
         
         #blacklists are edges that will never be in final graph
-        self.black = blacklist
+        self.black_edges = blacklist
         #whitelists are edges that will always be in final graph
-        self.white = whitelist
+        self.white_edges = whitelist
 
     def _alter_network_randomly_and_score(self):
         net = self.evaluator.network
@@ -60,10 +60,10 @@ class Learner(Task):
         for i in xrange(max_attempts):
             node1, node2 = N.random.random_integers(0, n_nodes-1, 2)    
         
-            if (node1, node2) in net.edges and (node1, node2) not in self.black:
+            if (node1, node2) in net.edges or (node1, node2) in self.black_edges:
                 # node1 -> node2 exists, so reverse it.    
                 add,remove = [(node2, node1)], [(node1, node2)]
-            elif (node2, node1) in net.edges and (node2, node1) not in self.black:
+            elif (node2, node1) in net.edges or (node2, node1) in self.black_edges:
                 # node2 -> node1 exists, so remove it
                 add,remove = [], [(node2, node1)]
             else:
