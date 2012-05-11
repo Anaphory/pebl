@@ -1,6 +1,7 @@
 """Classes and functions for representing prior distributions and constraints."""
 
 import numpy as N
+import networkx as nx
 
 NEGINF = -N.inf
 
@@ -76,7 +77,7 @@ class Prior(object):
         
         """
 
-        adjmat = net.edges.adjacency_matrix
+        adjmat = nx.adjacency_matrix(net)
 
         # if any of the mustexist or mustnotexist constraints are violated,
         # return negative infinity

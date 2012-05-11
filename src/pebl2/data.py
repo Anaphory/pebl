@@ -7,9 +7,9 @@ from itertools import groupby
 
 import numpy as N
 
-from pebl.util import *
-from pebl import discretizer
-from pebl import config
+from pebl2.util import *
+from pebl2 import discretizer
+from pebl2 import config
 
 #
 # Module parameters

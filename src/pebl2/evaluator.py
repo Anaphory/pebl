@@ -5,8 +5,8 @@ import random
 
 import numpy as N
 
-from pebl import data, cpd, prior, config, network
-from pebl.util import *
+from pebl2 import data, cpd, prior, config, network
+from pebl2.util import *
 
 N.random.seed()
 
@@ -235,6 +235,7 @@ class SmartNetworkEvaluator(NetworkEvaluator):
 
         # update localscore for dirtynodes, then re-calculate globalscore
         parents = self.network.predecessors
+        net_nodes = self.network.nodes
         for node in self.dirtynodes:
             self.localscores[node] = self._localscore(node, parents(node))
         
@@ -260,8 +261,8 @@ class SmartNetworkEvaluator(NetworkEvaluator):
         """
 
         if net:
-            add = [edge for edge in net.edges if edge not in self.network.edges]
-            remove = [edge for edge in self.network.edges if edge not in net.edges]
+            add = [e for e in net.edges_iter() if e not in self.network.edges_iter()]
+            remove = [e for e in self.network.edges_iter() if e not in net.edges_iter()]
         else:
             add = remove = []
         
@@ -274,14 +275,14 @@ class SmartNetworkEvaluator(NetworkEvaluator):
         # NOTE: remove existing edges *before* adding new ones. 
         #   if edge e is in `add`, `remove` and `self.network`, 
         #   it should exist in the new network. (the add and remove cancel out.
-        self.network.remove_many(remove)
-        self.network.add_many(add)    
+        self.network.remove_edges_from(remove)
+        self.network.add_edges_from(add)    
 
         # check whether changes lead to valid DAG (raise error if they don't)
         affected_nodes = set(unzip(add, 1))
         if affected_nodes and not self.network.is_acyclic(affected_nodes):
-            self.network.remove_many(add)
-            self.network.add_many(remove)
+            self.network.remove_edges_from(add)
+            self.network.add_edges_from(remove)
             raise CyclicNetworkError()
         
         
@@ -405,12 +406,12 @@ class MissingDataNetworkEvaluator(SmartNetworkEvaluator):
         self.data_dirtynodes = set(self.datavars)
 
 	def _update_dirtynodes(self, add, remove):
-		# With hidden nodes:
-		# 	1. dirtynode calculation is more expensive (need to look beyond 
-		#      markov blanket).
-		# 	2. time spent rescoring observed nodes is insignificant compared 
-		#      to scoring hidden/missing nodes.
-		self.dirtynodes = set(self.datavars)
+	    # With hidden nodes:
+	    #1. dirtynode calculation is more expensive (need to look beyond 
+	    #      markov blanket).
+	    # 	2. time spent rescoring observed nodes is insignificant compared 
+	    #      to scoring hidden/missing nodes.
+            self.dirtynodes = set(self.datavars)
 
     def _score_network_with_tempdata(self):
         # update localscore for data_dirtynodes, then calculate globalscore.

@@ -122,7 +122,7 @@ def unzip(l, *jj):
     """
 	
     if jj==():
-	    jj=range(len(l[0]))
+	jj=range(len(l[0]))
     rl = [[li[j] for li in l] for j in jj] # a list of lists
     if len(rl)==1:
         rl=rl[0] #convert list of 1 list to a list
@@ -211,8 +211,8 @@ def edit_distance(network1, network2):
     def inverse(edge):
         return (edge[1], edge[0])
 
-    edges1 = copy(list(network1.edges))
-    edges2 = copy(list(network2.edges))
+    edges1 = copy(network1.edges())
+    edges2 = copy(network2.edges())
 
     # Calculating distance:
     #   Add 1 to distance for every edge in one network but not in the other,

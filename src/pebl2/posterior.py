@@ -7,8 +7,8 @@ from itertools import izip
 import pydot
 import numpy as N
 
-from pebl import network
-from pebl.util import *
+from pebl2 import network
+from pebl2.util import *
 
 
 class Posterior(object):

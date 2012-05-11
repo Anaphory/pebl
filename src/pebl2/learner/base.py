@@ -2,6 +2,7 @@ import numpy as N
 
 from pebl import network, config, evaluator, data, prior
 from pebl.taskcontroller.base import Task
+import networkx as nx
 
 #
 # Exceptions
@@ -91,14 +92,14 @@ class Learner(Task):
         changes = []
 
         # edge removals
-        changes.extend((None, edge) for edge in net.edges)
+        changes.extend((None, edge) for edge in net.edges())
 
         # edge reversals
-        reverse = lambda edge: (edge[1], edge[0])
-        changes.extend((reverse(edge), edge) for edge in net.edges)
+        #reverse = lambda edge: (edge[1], edge[0])
+        changes.extend((edge[::-1], edge) for edge in net.edges())
 
         # edge additions
-        nz = N.nonzero(invert(net.edges.adjacency_matrix))
+        nz = N.nonzero(invert(nx.adjacency_matrix(net)))
         changes.extend( ((src,dest), None) for src,dest in zip(*nz) )
 
         return changes

@@ -62,8 +62,8 @@ speedymodules = Feature(
 )
 
 setup(
-    name='pebl',
-    version='1.0.2',
+    name='pebl2',
+    version='2.0',
     description='Python Environment for Bayesian Learning',
     long_description = long_desc,
     package_dir={'': 'src'},

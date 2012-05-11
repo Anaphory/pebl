@@ -22,18 +22,18 @@ try:
 except ImportError:
     _can_create_html = False
     
-from pebl import posterior, config
-from pebl.util import flatten, rescale_logvalues
-from pebl.network import Network
+from pebl2 import posterior, config
+from pebl2.util import flatten, rescale_logvalues
+from pebl2.network import Network
 
 
-class LearnerRunStats:
+class LearnerRunStats(object):
     def __init__(self, start):
         self.start = start
         self.end = None
         self.host = socket.gethostname()
 
-class LearnerResult:
+class LearnerResult(object):
     """Class for storing any and all output of a learner.
 
     This is a mutable container for networks and scores. In the future, it will
@@ -244,7 +244,7 @@ class HtmlFormatter:
                 s += " [pos=\"%d,%d\"]" % (x,y)
             return s + ";"
 
-        nodes = net.nodes
+        nodes = net.nodes()
         positions = node_positions
 
         dotstr = "\n".join(
@@ -283,7 +283,7 @@ def merge(*args):
     # create new result object
     newresults = LearnerResult()
     newresults.data = results[0].data
-    newresults.nodes = results[0].nodes
+    newresults.nodes = results[0].nodes()
 
     # merge all networks, remove duplicates, then sort
     allnets = list(set([net for net in flatten(r.networks for r in results)]))

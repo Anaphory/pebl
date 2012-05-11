@@ -3,9 +3,9 @@ import os, os.path
 import cPickle
 
 # import everything to make sure that all config parameters get registered
-from pebl import config, data, network, learner, taskcontroller, result, prior, result, posterior
-from pebl.learner import greedy, simanneal, exhaustive
-#from pebl.taskcontroller import serial, multiprocess, ec2, xgrid
+from pebl2 import config, data, network, learner, taskcontroller, result, prior, result, posterior
+from pebl2.learner import greedy, simanneal, exhaustive
+#from pebl2.taskcontroller import serial, multiprocess, ec2, xgrid
 
 USAGE = """
 Usage: %s <action> [<action parameters>]

@@ -6,7 +6,7 @@ from itertools import izip
 import numpy as N
 
 try:
-    from pebl import _cpd
+    from pebl2 import _cpd
 except:
     _cpd = None
 

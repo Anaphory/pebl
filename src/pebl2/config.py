@@ -9,7 +9,7 @@ from itertools import groupby
 from time import asctime
 from operator import attrgetter
 
-from pebl.util import unzip, as_list
+from pebl2.util import unzip, as_list
 
 #
 # Global list of parameters
