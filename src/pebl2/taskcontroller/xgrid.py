@@ -9,8 +9,8 @@ try:
 except:
     xg = False
     
-from pebl import config, result
-from pebl.taskcontroller.base import _BaseSubmittingController, DeferredResult
+from pebl2 import config, result
+from pebl2.taskcontroller.base import _BaseSubmittingController, DeferredResult
 
 class XgridDeferredResult(DeferredResult):
     def __init__(self, grid, task):

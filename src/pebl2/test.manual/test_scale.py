@@ -7,8 +7,8 @@ Import into python shell and call test_pebl with different sets of arguments.
 """
 
 import numpy as N
-from pebl import data, config
-from pebl.learner import greedy
+from pebl2 import data, config
+from pebl2.learner import greedy
 
 def test_pebl(numvars, numsamples, greedy_iters, cachesize):
     print "Testing with #vars=%d, #samples=%d, iters=%d, cachesize=%d" % (

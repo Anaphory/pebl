@@ -1,6 +1,6 @@
 """Module providing a taskcontroller than runs tasks serially."""
 
-from pebl.taskcontroller.base import _BaseController
+from pebl2.taskcontroller.base import _BaseController
 
 class SerialController(_BaseController):
     """A simple taskcontroller that runs tasks in serial in one process.

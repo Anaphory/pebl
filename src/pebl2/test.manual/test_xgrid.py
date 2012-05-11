@@ -1,8 +1,8 @@
 import sys
-from pebl import data, result, config
-from pebl.learner import greedy
-from pebl.taskcontroller import xgrid
-from pebl.test import testfile
+from pebl2 import data, result, config
+from pebl2.learner import greedy
+from pebl2.taskcontroller import xgrid
+from pebl2.test import testfile
 
 help = """Test the Xgrid TaskController.
 

@@ -2,9 +2,9 @@
 
 import time
 
-from pebl import network, result, evaluator
-from pebl.util import *
-from pebl.learner.base import *
+from pebl2 import network, result, evaluator
+from pebl2.util import *
+from pebl2.learner.base import *
 
 class GreedyLearnerStatistics:
     def __init__(self):

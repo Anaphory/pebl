@@ -7,10 +7,10 @@ import shutil
 import tempfile
 from copy import copy
 
-from pebl import config, result
-from pebl.taskcontroller.base import _BaseController
+from pebl2 import config, result
+from pebl2.taskcontroller.base import _BaseController
 
-PEBL = "pebl"
+PEBL = "pebl2"
 
 class MultiProcessController(_BaseController):
     #

@@ -1,4 +1,4 @@
-from pebl import config, data, prior
+from pebl2 import config, data, prior
 
 #TODO: test
 def fromconfig(data_=None, prior_=None):

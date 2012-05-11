@@ -7,8 +7,8 @@ import cPickle
 
 import numpy as N
 
-from pebl import network, config, evaluator, data, prior
-from pebl.learner.base import Learner
+from pebl2 import network, config, evaluator, data, prior
+from pebl2.learner.base import Learner
 
 
 #TODO: test

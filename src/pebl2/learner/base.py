@@ -1,7 +1,7 @@
 import numpy as N
 
-from pebl import network, config, evaluator, data, prior
-from pebl.taskcontroller.base import Task
+from pebl2 import network, config, evaluator, data, prior
+from pebl2.taskcontroller.base import Task
 import networkx as nx
 
 #

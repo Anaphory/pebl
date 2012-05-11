@@ -3,8 +3,8 @@
 from math import exp
 import random
 
-from pebl import network, result, evaluator, config
-from pebl.learner.base import *
+from pebl2 import network, result, evaluator, config
+from pebl2.learner.base import *
 
 
 class SALearnerStatistics:

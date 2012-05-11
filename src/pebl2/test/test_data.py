@@ -1,7 +1,7 @@
 import numpy as N
 
-from pebl import data
-from pebl.test import testfile
+from pebl2 import data
+from pebl2.test import testfile
 
 class TestFileParsing:
     def setUp(self):

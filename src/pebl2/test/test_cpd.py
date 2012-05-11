@@ -1,6 +1,6 @@
 from numpy import array, allclose
-from pebl import data, cpd
-from pebl.test import testfile
+from pebl2 import data, cpd
+from pebl2.test import testfile
 
 def test_cextension():
     try:

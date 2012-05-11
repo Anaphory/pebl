@@ -11,7 +11,7 @@ Testing pebl.posterior
 """
 
 if __name__ == '__main__':
-    from pebl.test import run
+    from pebl2.test import run
     run()
 
 

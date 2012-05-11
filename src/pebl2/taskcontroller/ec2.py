@@ -6,9 +6,9 @@ import shutil
 import tempfile
 import sys
 
-from pebl import config, result
-from pebl.taskcontroller.ipy1 import IPython1Controller, IPython1DeferredResult
-from pebl.taskcontroller import ec2ipy1
+from pebl2 import config, result
+from pebl2.taskcontroller.ipy1 import IPython1Controller, IPython1DeferredResult
+from pebl2.taskcontroller import ec2ipy1
 
 class EC2DeferredResult(IPython1DeferredResult):
     pass

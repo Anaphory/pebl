@@ -1,6 +1,6 @@
 import os
 import numpy as N
-from pebl import network, data, config
+from pebl2 import network, data, config
 
 #
 # Testing edgesets (working with edges)

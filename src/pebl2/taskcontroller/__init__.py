@@ -1,4 +1,4 @@
-from pebl import config
+from pebl2 import config
 
 #
 # Module Parameteres

@@ -1,8 +1,8 @@
 import cPickle
 
-from pebl.test import testfile
-from pebl import data, result, config
-from pebl.learner import greedy, simanneal
+from pebl2.test import testfile
+from pebl2 import data, result, config
+from pebl2.learner import greedy, simanneal
 
 class TestGreedyLearner_Basic:
     learnertype = greedy.GreedyLearner

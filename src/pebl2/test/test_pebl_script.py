@@ -4,8 +4,8 @@ import tempfile
 import os.path
 import shutil
 
-from pebl import pebl_script
-from pebl.test import testfile
+from pebl2 import pebl_script
+from pebl2.test import testfile
 
 class TestHtmlReport:
     def setup(self):

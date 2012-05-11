@@ -2,8 +2,8 @@
 from numpy import *
 test = None
 
-from pebl import data, network, evaluator, prior, config
-from pebl.test import testfile
+from pebl2 import data, network, evaluator, prior, config
+from pebl2.test import testfile
 import os
 import copy
 import random

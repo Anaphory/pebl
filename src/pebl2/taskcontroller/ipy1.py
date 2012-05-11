@@ -7,9 +7,9 @@ import os, os.path
 import tempfile
 import cPickle
 
-from pebl import config, result
-from pebl.taskcontroller.base import _BaseSubmittingController, DeferredResult
-from pebl.learner import custom
+from pebl2 import config, result
+from pebl2.taskcontroller.base import _BaseSubmittingController, DeferredResult
+from pebl2.learner import custom
 
 try:
     import ipython1.kernel.api as ipy1kernel

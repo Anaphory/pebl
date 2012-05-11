@@ -4,9 +4,9 @@ from __future__ import with_statement
 import tempfile, shutil, os.path
 import textwrap
 
-from pebl import data, pebl_script
-from pebl.learner import greedy, simanneal
-from pebl.test import testfile
+from pebl2 import data, pebl_script
+from pebl2.learner import greedy, simanneal
+from pebl2.test import testfile
 
 class TestTutorial:
     def setup(self):

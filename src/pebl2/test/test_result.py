@@ -5,10 +5,10 @@ import os.path
 
 from numpy import allclose
 
-from pebl import result
-from pebl import data, network
-from pebl.learner import greedy
-from pebl.test import testfile
+from pebl2 import result
+from pebl2 import data, network
+from pebl2.learner import greedy
+from pebl2.test import testfile
 
 class TestScoredNetwork:
     def setUp(self):

@@ -1,6 +1,6 @@
 import os, os.path
-from pebl import data, network
-from pebl.learner import greedy
+from pebl2 import data, network
+from pebl2.learner import greedy
 
 def benchmark_datafiles(dir=None):
     benchdata_dir = dir or os.path.join(os.path.dirname(__file__), "benchdata")

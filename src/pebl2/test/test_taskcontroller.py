@@ -5,10 +5,10 @@ import time
 from ipython1.kernel.scripts import ipcluster 
 from ipython1.kernel import task, controllerservice as cs, engineservice as es
 
-from pebl import data, result
-from pebl.learner import greedy
-from pebl.taskcontroller import serial, multiprocess, ipy1
-from pebl.test import testfile
+from pebl2 import data, result
+from pebl2.learner import greedy
+from pebl2.taskcontroller import serial, multiprocess, ipy1
+from pebl2.test import testfile
 
 # NOTE: The EC2 task controller is not tested automatically because:
 #   1. it requires authentication credential that we can't put in svn

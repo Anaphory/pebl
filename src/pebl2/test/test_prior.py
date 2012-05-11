@@ -1,5 +1,5 @@
 import numpy as N
-from pebl import data, network, prior
+from pebl2 import data, network, prior
 
 
 def test_null_prior():

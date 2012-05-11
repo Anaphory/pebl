@@ -1,8 +1,8 @@
 import sys
-from pebl import data, result
-from pebl.learner import greedy
-from pebl.taskcontroller import ec2
-from pebl.test import testfile
+from pebl2 import data, result
+from pebl2.learner import greedy
+from pebl2.taskcontroller import ec2
+from pebl2.test import testfile
 
 help = """Test the EC2 TaskController.
 

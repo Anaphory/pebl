@@ -2,8 +2,8 @@ import os.path
 import sys
 from tempfile import NamedTemporaryFile
 
-from pebl import config
-from pebl.test import testfile
+from pebl2 import config
+from pebl2.test import testfile
 
 
 def should_raise_exception(param, value):
