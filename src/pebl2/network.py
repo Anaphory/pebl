@@ -21,7 +21,7 @@ class Network(nx.DiGraph):
     #
     # Public methods
     #
-    def __init__(self, nodes, edges=tuple(), score=None):
+    def __init__(self, nodes=(), edges=tuple(), score=None):
         """Creates a Network.
 
         nodes is a list of pebl.data.Variable instances.
@@ -34,17 +34,35 @@ class Network(nx.DiGraph):
         """
         
         super(Network, self).__init__()
+        #nrange = xrange(len(nodes))
         self.add_nodes_from(nodes)
-        self.nodeids = range(len(nodes))
+        self.nodeids = {}
         
-        self.add_edges_from(edges)
+        for idf, node in enumerate(nodes):
+            self._add_id(node, idf)
+            self.nodeids[idf]=node
+        
+        if isinstance(edges, N.ndarray):
+            #create edges using adj mat.
+            rows, cols = edges.shape
+            print edges
+            print nodes
+            print "Edges Size: ",edges.shape
+            print "Nodes Size: ",len(nodes)
+            edg = [(nodes[j],nodes[k]) for k in xrange(cols) for j in xrange(rows)]
+        elif isinstance(edges, str) and edges:
+            edg = [map(int, x.split(",")) for x in edges.split(";")]
+        else:
+            edg = edges
             
+        self.add_edges_from(edg)
+        
         #this store the network score.
         #If None, network is not scored, otherwise this is a float
         self.score = score
 
     def __hash__(self):
-        return hash(self.edges)
+        return hash(tuple(self.edges()))
 
     def __cmp__(self, other):
         return cmp(self.score, other.score)
@@ -52,7 +70,26 @@ class Network(nx.DiGraph):
     def __eq__(self, other):
         return self.score == other.score and hash(self.edges) == hash(other.edges)
 
+    def _add_id(self, node, node_id):
+        """Add a string representation to a node's dictionary"""
+        
+        self.node[node]['id'] = node_id
     
+    def get_id(self, node):
+        """Get id of a node"""
+        for key,val in self.nodeids.iteritems():
+            if node == val:
+                return key
+                
+    def get_node_by_id(self, id):
+        """Get a node by id"""
+        
+        return self.nodeids[id]
+        
+    def get_node_subset(self, node_ids):
+        """Return a subset of nodes from node ids"""
+        return dict((k, self.nodeids[k]) for k in node_ids)
+        
     def is_acyclic(self, roots=None):
         """Uses a depth-first search (dfs) to detect cycles."""
 
@@ -130,7 +167,7 @@ def random_network(nodes, required_edges=[], prohibited_edges=[]):
     """
 
     def _randomize(net, density=None):
-        n_nodes = len(net.nodes)
+        n_nodes = len(net.nodes())
         density = density or 1.0/n_nodes
         max_attempts = 50
 
@@ -152,7 +189,7 @@ def random_network(nodes, required_edges=[], prohibited_edges=[]):
             adjmat = N.invert(N.identity(n_nodes).astype(bool))*adjmat
             
             # set the adjaceny matrix and check for acyclicity
-            net.edges.adjacency_matrix = adjmat.astype(bool)
+            net = nx.to_networkx_graph(adjmat, create_using=Network())
 
             if net.is_acyclic():
                 return net

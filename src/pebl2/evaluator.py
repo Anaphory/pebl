@@ -106,7 +106,8 @@ class NetworkEvaluator(object):
         self.data = data_
         self.prior = prior_ or prior.NullPrior()
         
-        self.datavars = range(self.data.variables.size)
+        #self.datavars = range(self.data.variables.size)
+        self.datavars = xrange(self.data.variables.size)
         self.score = None
         self._localscore = localscore_cache or LocalscoreCache(self)
         self.localscore_cache = self._localscore
@@ -223,8 +224,8 @@ class SmartNetworkEvaluator(NetworkEvaluator):
         #for n,score in changedscores:
             #self.localscores[n] = score
 
-        self.network.add_many(removed)
-        self.network.remove_many(added)
+        self.network.add_edges_from(removed)
+        self.network.remove_edges_from(added)
         self.saved_state = None
         self.dirtynodes = set()
 
@@ -235,9 +236,13 @@ class SmartNetworkEvaluator(NetworkEvaluator):
 
         # update localscore for dirtynodes, then re-calculate globalscore
         parents = self.network.predecessors
-        net_nodes = self.network.nodes
-        for node in self.dirtynodes:
-            self.localscores[node] = self._localscore(node, parents(node))
+        getid = self.network.get_id
+        
+        #build the dictionary of dirty nodes
+        dirty = self.network.get_node_subset(self.dirtynodes)
+        
+        for nodeid, node in dirty.iteritems():
+            self.localscores[nodeid] = self._localscore(nodeid, map(getid, parents(node)))
         
         self.dirtynodes = set()
         self.score = self._globalscore(self.localscores)

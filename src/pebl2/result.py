@@ -89,18 +89,18 @@ class LearnerResult(object):
         """Add a network and score to the results."""
         nets = self.networks
         nethashes = self.nethashes
-        nethash = hash(net.edges)
+        nethash = hash(net)
 
         if self.size == 0 or len(nets) < self.size:
             if nethash not in nethashes:
-                snet = Network(copy(self.nodes), copy(net.edges), score=score)
+                snet = Network(copy(self.nodes), copy(net.edges()), score=score)
                 insort(nets, snet)
                 nethashes[nethash] = 1
         elif score > nets[0].score and nethash not in nethashes:
-            nethashes.pop(hash(nets[0].edges))
+            nethashes.pop(hash(nets[0]))
             nets.remove(nets[0])
 
-            snet = Network(copy(self.nodes), copy(net.edges), score=score)
+            snet = Network(copy(self.nodes), copy(net.edges()), score=score)
             insort(nets, snet)
             nethashes[nethash] = 1
 
@@ -156,7 +156,7 @@ class HtmlFormatter:
             os.makedirs(outdir)
 
         # copy static files to outdir
-        staticdir = resource_filename('pebl', 'resources/htmlresult')
+        staticdir = resource_filename('pebl2', 'resources/htmlresult')
         shutil.copy2(pjoin(staticdir, 'index.html'), outdir)
         shutil.copytree(pjoin(staticdir, 'lib'), pjoin(outdir, 'lib'))
        

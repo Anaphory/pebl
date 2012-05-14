@@ -6,6 +6,7 @@ from itertools import izip
 
 import pydot
 import numpy as N
+import networkx as nx
 
 from pebl2 import network
 from pebl2.util import *
@@ -120,11 +121,11 @@ def from_sorted_scored_networks(nodes, networks):
     
     networks should be sorted in descending order.
     """
-
-    return Posterior(
-        nodes,
-        [n.edges.adjacency_matrix for n in networks],
-        [n.score for n in networks]
-    )
+    
+    nodes = networks[0].nodes()
+    adjmats = [nx.adjacency_matrix(n) for n in networks]
+    netscores = [n.score for n in networks]
+    
+    return Posterior(nodes, adjmats, netscores)
 
 

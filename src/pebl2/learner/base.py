@@ -61,10 +61,10 @@ class Learner(Task):
         for i in xrange(max_attempts):
             node1, node2 = N.random.random_integers(0, n_nodes-1, 2)    
         
-            if (node1, node2) in net.edges or (node1, node2) in self.black_edges:
+            if (node1, node2) in net.edges() or (node1, node2) in self.black_edges:
                 # node1 -> node2 exists, so reverse it.    
                 add,remove = [(node2, node1)], [(node1, node2)]
-            elif (node2, node1) in net.edges or (node2, node1) in self.black_edges:
+            elif (node2, node1) in net.edges() or (node2, node1) in self.black_edges:
                 # node2 -> node1 exists, so remove it
                 add,remove = [], [(node2, node1)]
             else:
