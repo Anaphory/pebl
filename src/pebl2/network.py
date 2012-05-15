@@ -49,7 +49,7 @@ class Network(nx.DiGraph):
             print nodes
             print "Edges Size: ",edges.shape
             print "Nodes Size: ",len(nodes)
-            edg = [(nodes[j],nodes[k]) for k in xrange(cols) for j in xrange(rows)]
+            edg = [(nodes[j],nodes[k]) for k in xrange(cols) for j in xrange(rows) if edges[j,k]==1]
         elif isinstance(edges, str) and edges:
             edg = [map(int, x.split(",")) for x in edges.split(";")]
         else:
