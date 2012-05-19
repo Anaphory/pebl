@@ -15,6 +15,8 @@ from pebl2.util import *
 
 import networkx as nx
 
+class NodeException(Exception): pass
+
 class Network(nx.DiGraph):
     """A network is a set of nodes and directed edges between nodes"""
     
@@ -36,20 +38,16 @@ class Network(nx.DiGraph):
         super(Network, self).__init__()
         #nrange = xrange(len(nodes))
         self.add_nodes_from(nodes)
-        self.nodeids = {}
         
         for idf, node in enumerate(nodes):
             self._add_id(node, idf)
-            self.nodeids[idf]=node
         
         if isinstance(edges, N.ndarray):
             #create edges using adj mat.
             rows, cols = edges.shape
-            print edges
-            print nodes
             print "Edges Size: ",edges.shape
             print "Nodes Size: ",len(nodes)
-            edg = [(nodes[j],nodes[k]) for k in xrange(cols) for j in xrange(rows) if edges[j,k]==1]
+            edg = [(nodes[j],nodes[k]) for k in xrange(cols) for j in xrange(rows) if edges[j,k]]
         elif isinstance(edges, str) and edges:
             edg = [map(int, x.split(",")) for x in edges.split(";")]
         else:
@@ -75,20 +73,48 @@ class Network(nx.DiGraph):
         
         self.node[node]['id'] = node_id
     
+    def add_edges_from(self, edges, attr_dict=None, **attr):
+        """Add edges from [edges] to the network
+        
+        Will fail if nodes being connected by edges don't exist"""
+        
+        for edge in edges:
+            self.add_edge(edge[0], edge[1], attr_dict=attr_dict, **attr)
+    
+    def add_edge(self, u, v, attr_dict=None, **attr):
+        """Add edge between nodes u and v.  u and v must exist otherwise exception is thrown"""
+        
+        u_exist = u in self.nodes()
+        
+        if u_exist and v in self.nodes():
+            super(Network, self).add_edge(u, v, attr_dict=attr_dict, **attr)
+        else:
+            if u_exist:
+                raise NodeException("Node {0} does not exist!".format(v))
+            else:
+                raise NodeException("Node {0} does not exist!".format(u))
+            
+    def add_nodes_from(self, nodes, **attr):
+        print "Adding Nodes {0}".format(nodes)
+        super(Network, self).add_nodes_from(nodes, **attr)
+        
+    def add_node(self, n, **attr):
+        print "Adding Node {0}".format(n)
+        super(Network, self).add_node(n, **attr)
+        
     def get_id(self, node):
         """Get id of a node"""
-        for key,val in self.nodeids.iteritems():
-            if node == val:
-                return key
+        return self.nodes().index(node)
                 
     def get_node_by_id(self, id):
         """Get a node by id"""
         
-        return self.nodeids[id]
+        return self.nodes()[id]
         
     def get_node_subset(self, node_ids):
         """Return a subset of nodes from node ids"""
-        return dict((k, self.nodeids[k]) for k in node_ids)
+        return [n for n in nodes() if n in node_ids]
+        #return dict((k, self.nodeids[k]) for k in node_ids)
         
     def is_acyclic(self, roots=None):
         """Uses a depth-first search (dfs) to detect cycles."""

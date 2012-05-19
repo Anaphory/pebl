@@ -1,5 +1,6 @@
 import numpy as N
 
+from random import choice
 from pebl2 import network, config, evaluator, data, prior
 from pebl2.taskcontroller.base import Task
 import networkx as nx
@@ -54,13 +55,17 @@ class Learner(Task):
 
     def _alter_network_randomly_and_score(self):
         net = self.evaluator.network
-        n_nodes = self.data.variables.size
-        max_attempts = n_nodes**2
+        nodes = net.nodes()
 
         # continue making changes and undoing them till we get an acyclic network
-        for i in xrange(max_attempts):
-            node1, node2 = N.random.random_integers(0, n_nodes-1, 2)    
-        
+        for i in xrange(len(nodes)**2):
+            #node1, node2 = N.random.random_integers(0, n_nodes-1, 2)    
+            node1 = choice(nodes)
+            node2 = choice(nodes)
+            
+            if node1 == node2:
+                continue
+            
             if (node1, node2) in net.edges() or (node1, node2) in self.black_edges:
                 # node1 -> node2 exists, so reverse it.    
                 add,remove = [(node2, node1)], [(node1, node2)]

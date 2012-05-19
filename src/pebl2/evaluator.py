@@ -46,7 +46,6 @@ class LocalscoreCache(object):
 
     def __call__(self, node, parents):
         # make variables local
-        _len = len
         _queue = self._queue
         _refcount = self._refcount
         _cache = self._cache
@@ -69,7 +68,7 @@ class LocalscoreCache(object):
             _refcount[index] = _refcount.get(index, 0) + 1
 
             # purge LRU entry
-            while _len(_cache) > _maxsize:
+            while len(_cache) > _maxsize:
                 k = _queue.popleft()
                 _refcount[k] -= 1
                 if not _refcount[k]:
@@ -77,7 +76,7 @@ class LocalscoreCache(object):
                     del _refcount[k]
 
             # Periodically compact the queue by duplicate keys
-            if _len(_queue) > _maxsize * 4:
+            if len(_queue) > _maxsize * 4:
                 for i in xrange(_len(_queue)):
                     k = _queue.popleft()
                     if _refcount[k] == 1:
@@ -107,7 +106,7 @@ class NetworkEvaluator(object):
         self.prior = prior_ or prior.NullPrior()
         
         #self.datavars = range(self.data.variables.size)
-        self.datavars = xrange(self.data.variables.size)
+        self.datavars = self.network.nodes()
         self.score = None
         self._localscore = localscore_cache or LocalscoreCache(self)
         self.localscore_cache = self._localscore
@@ -117,15 +116,18 @@ class NetworkEvaluator(object):
     # 
     def _globalscore(self, localscores):
         # log(P(M|D)) +  log(P(M)) == likelihood + prior
-        return N.sum(localscores) + self.prior.loglikelihood(self.network)
+        #return N.sum(localscores) + self.prior.loglikelihood(self.network)
+        return sum(localscores.values()) + self.prior.loglikelihood(self.network)
     
     def _cpd(self, node, parents):
         #return cpd.MultinomialCPD(
             #self.data.subset(
                 #[node] + parents,            
-                #N.where(self.data.interventions[:,node] == False)[0])) 
-        return cpd.MultinomialCPD(
-            self.data._subset_ni_fast([node] + parents))
+                #N.where(self.data.interventions[:,node] == False)[0]))
+        
+        #since we use indexes in the dataset, turn the node+parents to indexes
+        node_slice = map(self.datavars.index, [node] + parents)
+        return cpd.MultinomialCPD(self.data._subset_ni_fast(node_slice))
 
 
     def _score_network_core(self):
@@ -200,7 +202,8 @@ class SmartNetworkEvaluator(NetworkEvaluator):
             #raise Exception(msg)
 
         # these represent that state that we intelligently manage
-        self.localscores = N.zeros((self.data.variables.size), dtype=float)
+        #self.localscores = N.zeros((self.data.variables.size), dtype=float)
+        self.localscores = {}
         self.dirtynodes = set(self.datavars)
         self.saved_state = None
 
@@ -236,13 +239,9 @@ class SmartNetworkEvaluator(NetworkEvaluator):
 
         # update localscore for dirtynodes, then re-calculate globalscore
         parents = self.network.predecessors
-        getid = self.network.get_id
         
-        #build the dictionary of dirty nodes
-        dirty = self.network.get_node_subset(self.dirtynodes)
-        
-        for nodeid, node in dirty.iteritems():
-            self.localscores[nodeid] = self._localscore(nodeid, map(getid, parents(node)))
+        for node in self.dirtynodes:
+            self.localscores[node] = self._localscore(node, parents(node))
         
         self.dirtynodes = set()
         self.score = self._globalscore(self.localscores)
@@ -252,7 +251,7 @@ class SmartNetworkEvaluator(NetworkEvaluator):
     def _update_dirtynodes(self, add, remove):
         # given the edges being added and removed, determine nodes to rescore
         # with fully observed data, only the parensets of edge destinations have changed
-        self.dirtynodes.update(set(unzip(add+remove, 1)))
+        self.dirtynodes.update(set([j[1] for j in add+remove]))
 
     #
     # Public Interface
@@ -266,8 +265,8 @@ class SmartNetworkEvaluator(NetworkEvaluator):
         """
 
         if net:
-            add = [e for e in net.edges_iter() if e not in self.network.edges_iter()]
-            remove = [e for e in self.network.edges_iter() if e not in net.edges_iter()]
+            add = [e for e in net.edges_iter() if e not in self.network.edges()]
+            remove = [e for e in self.network.edges_iter() if e not in net.edges()]
         else:
             add = remove = []
         
@@ -284,8 +283,8 @@ class SmartNetworkEvaluator(NetworkEvaluator):
         self.network.add_edges_from(add)    
 
         # check whether changes lead to valid DAG (raise error if they don't)
-        affected_nodes = set(unzip(add, 1))
-        if affected_nodes and not self.network.is_acyclic(affected_nodes):
+        affected_nodes = set([j[1] for j in add])
+        if affected_nodes and not self.network.is_acyclic():
             self.network.remove_edges_from(add)
             self.network.add_edges_from(remove)
             raise CyclicNetworkError()
@@ -476,7 +475,7 @@ class MissingDataNetworkEvaluator(SmartNetworkEvaluator):
             arities = [v.arity for v in self.data.variables]
             assignedvals = [random.randint(0, arities[col]-1) for row,col in indices]
         
-        self.data.observations[unzip(indices)] = assignedvals
+        self.data.observations[zip(*indices)] = assignedvals
 
     def score_network(self, net=None, gibbs_state=None):
         """Score a network.
@@ -512,7 +511,7 @@ class MissingDataNetworkEvaluator(SmartNetworkEvaluator):
 
     def _score_network_core(self):
         # create some useful lists and local variables
-        missing_indices = unzip(N.where(self.data.missing==True))
+        missing_indices = zip(*N.where(self.data.missing==True))
         num_missingvals = len(missing_indices)
         n = num_missingvals
         max_iterations = eval(self.max_iterations)
@@ -544,7 +543,7 @@ class MissingDataNetworkEvaluator(SmartNetworkEvaluator):
         self.gibbs_state = GibbsSamplerState(
             avgscore=self.score, 
             numscores=numscores, 
-            assignedvals=self.data.observations[unzip(missing_indices)].tolist()
+            assignedvals=self.data.observations[zip(*missing_indices)].tolist()
         )
 
         return self.score
@@ -571,7 +570,7 @@ class MissingDataExactNetworkEvaluator(MissingDataNetworkEvaluator):
         """
         
         # create some useful lists and local variables
-        missing_indices = unzip(N.where(self.data.missing==True))
+        missing_indices = zip(*N.where(self.data.missing==True))
         num_missingvals = len(missing_indices)
         possiblevals = [range(self.data.variables[col].arity) for row,col in missing_indices]
 
