@@ -55,8 +55,8 @@ speedymodules = Feature(
     "Optional speedier C modules.",
     standard = True,
     ext_modules = [
-        Extension('pebl._network', sources=['src/pebl/_network.c']),
-        Extension('pebl._cpd', sources=['src/pebl/_cpd.c'], 
+        Extension('pebl2._network', sources=['src/pebl2/_network.c']),
+        Extension('pebl2._cpd', sources=['src/pebl2/_cpd.c'], 
                   include_dirs=[numpy.get_include()]),
     ]
 )
@@ -103,7 +103,7 @@ setup(
     # scripts
     entry_points = {
         'console_scripts': [
-            'pebl = pebl.pebl_script:main'
+            'pebl2 = pebl2.pebl_script:main'
         ]
     },
 
