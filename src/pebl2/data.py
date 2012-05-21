@@ -620,5 +620,3 @@ def merge(datasets, axis=None):
     observations = stacker(tuple(d.observations for d in datasets))
 
     return Dataset(observations, missing, interventions, variables, samples)
-
-
