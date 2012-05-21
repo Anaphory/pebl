@@ -38,6 +38,9 @@ class Learner(Task):
     def __init__(self, data_=None, prior_=None, whitelist=tuple(), blacklist=tuple(), **kw):
         self.data = data_ or data.fromconfig()
         self.prior = prior_ or prior.fromconfig()
+        
+        self.black_edges = kw.pop('blacklist', ())
+        self.white_edges = kw.pop('whitelist', ())
         self.__dict__.update(kw)
 
         # parameters
@@ -48,11 +51,6 @@ class Learner(Task):
         self.add = 0
         self.remove = 0
         
-        #blacklists are edges that will never be in final graph
-        self.black_edges = blacklist
-        #whitelists are edges that will always be in final graph
-        self.white_edges = whitelist
-
     def _alter_network_randomly_and_score(self):
         net = self.evaluator.network
         nodes = net.nodes()

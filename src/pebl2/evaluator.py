@@ -163,7 +163,9 @@ class NetworkEvaluator(object):
     def randomize_network(self, blacklist=tuple(), whitelist=tuple()): 
         """Randomize the network edges."""
 
-        self.network = network.random_network(self.network.nodes())
+        self.network = network.random_network(self.network.nodes(),
+                                                prohibited_edges=blacklist,
+                                                required_edges=whitelist)
 
         return self.score_network()
 
@@ -283,8 +285,7 @@ class SmartNetworkEvaluator(NetworkEvaluator):
         self.network.add_edges_from(add)    
 
         # check whether changes lead to valid DAG (raise error if they don't)
-        affected_nodes = set([j[1] for j in add])
-        if affected_nodes and not self.network.is_acyclic():
+        if not self.network.is_acyclic():
             self.network.remove_edges_from(add)
             self.network.add_edges_from(remove)
             raise CyclicNetworkError()
@@ -300,12 +301,14 @@ class SmartNetworkEvaluator(NetworkEvaluator):
 
         return self.score
        
-    def randomize_network(self, blacklist=tuple(), whitelist=tuple()):
-        """Randomize the network edges."""
+    #def randomize_network(self, blacklist=tuple(), whitelist=tuple()):
+        #"""Randomize the network edges."""
 
-        newnet = network.random_network(self.network.nodes())
+        #newnet = network.random_network(self.network.nodes(),
+                                        #prohibited_edges=blacklist,
+                                        #required_edges=whitelist)
 
-        return self.score_network(newnet)
+        #return self.score_network(newnet)
 
     def clear_network(self):
         """Clear all edges from the network."""
