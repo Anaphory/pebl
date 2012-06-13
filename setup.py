@@ -55,14 +55,14 @@ speedymodules = Feature(
     "Optional speedier C modules.",
     standard = True,
     ext_modules = [
-        Extension('pebl2._network', sources=['src/pebl2/_network.c']),
-        Extension('pebl2._cpd', sources=['src/pebl2/_cpd.c'], 
+        Extension('pebl._network', sources=['src/pebl/_network.c']),
+        Extension('pebl._cpd', sources=['src/pebl/_cpd.c'], 
                   include_dirs=[numpy.get_include()]),
     ]
 )
 
 setup(
-    name='pebl2',
+    name='pebl',
     version='2.0',
     description='Python Environment for Bayesian Learning',
     long_description = long_desc,
@@ -103,7 +103,7 @@ setup(
     # scripts
     entry_points = {
         'console_scripts': [
-            'pebl2 = pebl2.pebl_script:main'
+            'pebl = pebl.pebl_script:main'
         ]
     },
 
