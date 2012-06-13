@@ -1,8 +1,8 @@
 """Classes and functions for working with datasets."""
 
-from __future__ import with_statement
 import re
 import copy
+import csv
 from itertools import groupby
 
 import numpy as N
@@ -432,6 +432,16 @@ def fromfile(filename):
     with file(filename) as f:
         return fromstring(f.read())
 
+
+def fromcsv(csvfile, *csvargv, **csvargd):
+    """
+    """
+    reader = csv.DictReader(csvfile, *csvargv, **csvargd)
+    for row in reader:
+        print row
+    
+def fromstring(stringrep):
+    return fromcsv(stringrep.splitlines())
 
 def fromstring(stringrep, fieldsep='\t'):
     """Parse the string representation of a dataset and return a Dataset instance.

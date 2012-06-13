@@ -22,7 +22,8 @@ try:
 except:
     _can_create_html = False
     
-from pebl import posterior, config
+import pebl.posterior
+import pebl.config
 from pebl.util import flatten, rescale_logvalues
 from pebl.network import Network
 
@@ -69,23 +70,23 @@ class LearnerResult:
     # Parameters
     #
     _params = (
-        config.StringParameter(
+        pebl.config.StringParameter(
             'result.filename',
             'The name of the result output file',
             default='result.pebl'
         ),
-        config.StringParameter(
+        pebl.config.StringParameter(
             'result.format',
             'The format for the pebl result file (pickle or html)',
-            config.oneof('pickle', 'html'),
+            pebl.config.oneof('pickle', 'html'),
             default='pickle'
         ),
-        config.StringParameter(
+        pebl.config.StringParameter(
             'result.outdir',
             'Directory for html report.',
             default='result'
         ),
-        config.IntParameter(
+        pebl.config.IntParameter(
             'result.size',
             """Number of top-scoring networks to save. Specify 0 to indicate that
             all scored networks should be saved.""",
@@ -96,7 +97,7 @@ class LearnerResult:
     def __init__(self, learner_=None, size=None):
         self.data = learner_.data if learner_ else None
         self.nodes = self.data.variables if self.data else None
-        self.size = size or config.get('result.size')
+        self.size = size or pebl.config.get('result.size')
         self.networks = []
         self.nethashes = {}
         self.runs = []
@@ -134,7 +135,7 @@ class LearnerResult:
         The result can be later read using the result.fromfile function.
         """
 
-        filename = filename or config.get('result.filename')
+        filename = filename or pebl.config.get('result.filename')
         with open(filename, 'w') as fp:
             cPickle.dump(self, fp)
     
@@ -147,7 +148,7 @@ class LearnerResult:
         if _can_create_html:
             HtmlFormatter().htmlreport(
                 self, 
-                outdir or config.get('result.outdir')
+                outdir or pebl.config.get('result.outdir')
             )
         else:
             print "Cannot create html reports because some dependencies are missing."
@@ -155,7 +156,7 @@ class LearnerResult:
     @property
     def posterior(self):
         """Returns a posterior object for this result."""
-        return posterior.from_sorted_scored_networks(
+        return pebl.posterior.from_sorted_scored_networks(
                     self.nodes, 
                     list(reversed(self.networks))
         )

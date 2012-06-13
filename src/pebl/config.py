@@ -1,7 +1,5 @@
 """Classes and functions for specifying and working with parameters."""
 
-from __future__ import with_statement
-
 import sys
 import os.path
 from ConfigParser import ConfigParser

@@ -5,7 +5,7 @@ import random
 
 import numpy as N
 
-from pebl import data, cpd, prior, config, network
+import data, cpd, prior, config, network
 from pebl.util import *
 
 N.random.seed()

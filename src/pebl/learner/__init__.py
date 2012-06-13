@@ -1,8 +1,7 @@
-from pebl import config, data, prior
+import pebl.config
 
-#TODO: test
 def fromconfig(data_=None, prior_=None):
-    learnertype = config.get('learner.type')
+    learnertype = pebl.config.get('learner.type')
 
     if ':' in learnertype:
         CustomLearner(
