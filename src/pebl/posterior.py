@@ -64,7 +64,7 @@ class Posterior(object):
         features[features < threshold] = 0
         features = features.astype(bool)
         
-        return pebl.network.Network(self.nodes, features)
+        return network.Network(self.nodes, features)
 
     @property
     def entropy(self):
@@ -87,7 +87,7 @@ class Posterior(object):
     def __iter__(self):
         """Iterate over the networks in the posterior in sorted order."""
         for adjmat,score in zip(self.adjacency_matrices, self.scores):
-            net = pebl.network.Network(self.nodes, adjmat)
+            net = network.Network(self.nodes, adjmat)
             net.score = score
             yield net
 
@@ -96,7 +96,7 @@ class Posterior(object):
         if isinstance(key, slice):
             return self.__getslice__(self, key.start, key.stop)
         
-        net = pebl.network.Network(self.nodes, self.adjacency_matrices[key])
+        net = network.Network(self.nodes, self.adjacency_matrices[key])
         net.score = self.scores[key]
         return net
 
