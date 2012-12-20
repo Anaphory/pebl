@@ -153,8 +153,9 @@ class Dataset(object):
         self.observations = observations
         self.missing = missing
         self.interventions = interventions
-        self.variables = variables
-        self.samples = samples
+        self.variables = N.asarray(variables)
+        self.samples = N.asarray(samples)
+        
 
         # With a numpy array X, we can't do 'if not X' to check the
         # truth value because it raises an exception. So, we must use the
@@ -170,6 +171,9 @@ class Dataset(object):
             self._guess_arities()
         if samples is None:
             self.samples = N.array([Sample(str(i)) for i in xrange(obs.shape[0])])
+            
+        if self.observations.shape != self.samples.shape + self.variables.shape:
+            raise ValueError("Shape of the data does not match number of variables and samples.")
 
         if not skip_stats:
             self._calc_stats()

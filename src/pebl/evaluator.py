@@ -117,7 +117,7 @@ class NetworkEvaluator(object):
     def _globalscore(self, localscores):
         # log(P(M|D)) +  log(P(M)) == likelihood + prior
         #return N.sum(localscores) + self.prior.loglikelihood(self.network)
-        return sum(localscores.values()) + self.prior.loglikelihood(self.network)
+        return sum(localscores) + self.prior.loglikelihood(self.network)
     
     def _cpd(self, node, parents):
         #return cpd.MultinomialCPD(
